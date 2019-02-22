@@ -1,13 +1,14 @@
 # Built application files
 *.apk
 *.ap_
-
+.idea
 # Files for the ART/Dalvik VM
 *.dex
-
+gradlew.bat
 # Java class files
 *.class
-
+gradle/
+gradlew
 # Generated files
 bin/
 gen/

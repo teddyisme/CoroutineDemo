@@ -4,6 +4,7 @@ import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.OnLifecycleEvent
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.*
@@ -19,7 +20,7 @@ internal class CoroutineLifecycleListener(private val deferred: Deferred<*>) : L
     }
 }
 
-private val Background = newFixedThreadPoolContext(1, "bg")
+private val Background = newFixedThreadPoolContext(3, "bg")
 private val UI: CoroutineContext = Dispatchers.Main
 
 fun <T> LifecycleOwner.load(loader: suspend () -> T): Deferred<T> {
@@ -53,7 +54,7 @@ fun <T> AppCompatActivity.http(
             Thread.sleep(2000)
             data = Gson().fromJson(testData, dataClass)
         } catch (e: java.lang.Exception) {
-
+            failed()
         }
     } then {
         if (data != null) {
@@ -63,6 +64,31 @@ fun <T> AppCompatActivity.http(
         }
     }
 }
+
+fun <T> Fragment.http(
+    dataClass: Class<T>,
+    param: HashMap<String, String>,
+    succse: suspend (d: T) -> Unit,
+    failed: suspend () -> Unit
+) {
+    var data: T? = null
+    load {
+        //        Weather::class.javaObjectType
+        try {
+            Thread.sleep(2000)
+            data = Gson().fromJson(testData, dataClass)
+        } catch (e: java.lang.Exception) {
+            failed()
+        }
+    } then {
+        if (data != null) {
+            succse(data!!)
+        } else {
+            failed()
+        }
+    }
+}
+
 
 val testData = """{
     "daily_forecast": [
